@@ -1,6 +1,8 @@
 This tool is developed as a part of an agent which is designed to enhance the llm model (StarFire (星火) developed by IFLYTEK) 
 This part of the agent aims to develop a frequency table for the capitalization spelling for each of the keyword extracted.
 Sample output:
+
+
 "Pdf": [
     ["PDF", 675],
     ["pdf", 11],
