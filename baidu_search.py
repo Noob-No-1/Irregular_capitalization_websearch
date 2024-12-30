@@ -42,24 +42,6 @@ def find_case_insensitive_variants(text, keyword):
     sorted_variants = sorted(variant_counts.items(), key=lambda x:x[1], reverse=True)
     return sorted_variants
 
-def extract_keywords(file_path):
-    """
-    读取json file中的 "keyword"部分并整合到一个Array中
-    """
-    keywords = []
-    
-    with open(file_path, 'r', encoding='utf-8') as file:
-        # Skip the header line
-        next(file)
-        
-        for line in file:
-            if line.strip():  # Ignore empty lines
-                # Split the line by tab and take the first column (keyword)
-                keyword = line.split('\t')[0]
-                keywords.append(keyword)
-    
-    return keywords
-
 def process_word(keywords):
     '''
     对keywords中的每一个keyword进行词频统计
@@ -86,7 +68,7 @@ def extract_keywords_from_tsv(file_path):
                 word, _ = line.split('\t', 1)  # Split into 'word' and 'type'
                 keywords.append(word.strip())  # Add the 'word' part to keywords
                 
-    return keywords
+    return keywords[:40]
 
 def save_results_to_json(results, output_path):
     with open(output_path, 'w', encoding='utf-8') as json_file:
