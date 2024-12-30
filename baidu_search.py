@@ -3,6 +3,7 @@ import json
 import re
 from baidusearch.baidusearch import search
 import time
+from tqdm import tqdm
 
 frequency_table = defaultdict(list)
 def fetch_content(word):
@@ -64,35 +65,50 @@ def process_word(keywords):
     对keywords中的每一个keyword进行词频统计
     '''
     results = {}
-    for keyword in keywords:
-        text = fetch_content(keyword)
-        results[keyword] = find_case_insensitive_variants(text, keyword)
-        time.sleep(5) #sleep for 5s between each search to avoid being blocked
+    with tqdm(total=len(keywords), desc="Processing keywords") as pbar:
+        for keyword in keywords:
+            text = fetch_content(keyword)
+            results[keyword] = find_case_insensitive_variants(text, keyword)
+            time.sleep(5)  # Avoid getting blocked
+            pbar.update(1)
     return results
 
-def main():
-
-    KEY_WORDS = [
-    "Pdf",
-    "ar",
-    "WiFi",
-    "sI",
-    "DOOM",
-    "Acc线",
-    "CIPA",
-    "SP",
-    "hellokittyT恤",
-    "pnc"]
-
-    result = process_word(KEY_WORDS) 
-    #for debugging purpose, can comment out when putting into the system
-    print("\n--- Frequency Table ---\n")
-    for keyword, variants in result.items():
-        print(f'"{keyword}": {variants}')
+def extract_keywords_from_tsv(file_path):
+    """
+    Reads a TSV (tab-separated values) file and extracts the 'word' column.
+    """
+    keywords = []
     
+    with open(file_path, 'r', encoding='utf-8') as file:
+        next(file)  # Skip the header line
+        for line in file:
+            if line.strip():  # Ignore empty lines
+                word, _ = line.split('\t', 1)  # Split into 'word' and 'type'
+                keywords.append(word.strip())  # Add the 'word' part to keywords
+                
+    return keywords
+
+def save_results_to_json(results, output_path):
+    with open(output_path, 'w', encoding='utf-8') as json_file:
+        json.dump(results, json_file, ensure_ascii=False, indent=4)
+
+def main():
+    tsv_file_path = "bd_search.txt"  
+    output_path = "results.json"
+    # Extract keywords 
+    keywords = extract_keywords_from_tsv(tsv_file_path)
+    # Process the keywords
+    results = process_word(keywords)
+    # Print frequency table
+    # Save the results to a JSON file
+    save_results_to_json(results, output_path)
+
+    print(f"\nAll results have been written to '{output_path}'.")
 
 if __name__ == "__main__":
     main()
+
+
 
 '''"Pdf": [('pdf', 50), ('PDF', 35)]
 "ar": [('AR', 42), ('ar', 21), ('Ar', 2)]
